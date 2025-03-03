@@ -70,3 +70,5 @@ This game has the following payoff matrix:
 | **(12, 12)** | **(0, 11)**  |
 |--------|--------|
 | **(11, 0)**  | **(10, 10)** |
+
+It is in fact a variant of the Stag Hunt game, where players the *(Stag, Stag)* state is less advantageous, and players lose more when trying to catch the Stag. 
