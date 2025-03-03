@@ -1,0 +1,6 @@
+cloudpickle
+Farama-Notifications
+gymnasium
+numpy
+pettingzoo
+typing_extensions

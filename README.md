@@ -7,6 +7,7 @@
 ```
 git clone https://github.com/mrochk/pettingzoo-dilemmas
 cd pettingzoo_dilemmas
+pip install -r requirements.txt # pettingzoo + gymnasium
 pip install .
 ```
 
