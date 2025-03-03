@@ -1,9 +1,9 @@
 # PettingZoo Dilemmas
-PettingZoo environments for 4 classical matrix games: 
+**PettingZoo environments for 4 classical matrix games.** 
 
-# Usage
+## Usage
 
-## Installation
+### Installation
 ```
 git clone https://github.com/mrochk/pettingzoo-dilemmas
 cd pettingzoo_dilemmas
@@ -17,8 +17,8 @@ python3 runtest.py
 
 All outputs should be "Passed Parallel API test".
 
-## Using The Environments
-Example with Stag Hunt:
+### Using The Environments
+*Example with Stag Hunt:*
 ```python
 from pettingzoo import ParallelEnv
 
@@ -47,23 +47,23 @@ for agent in env.possible_agents:
     print(f'Cumulative reward  of {agent} = {env.cumreward(agent) : .2f}.')
 ```
 
-# Games Description:
+## Games Description:
 
-## Stag Hunt
-
-https://en.wikipedia.org/wiki/Stag_hunt
-
-## Matching Pennies
+### Stag Hunt
 
 https://en.wikipedia.org/wiki/Stag_hunt
 
+### Matching Pennies
 
-## Prisoner’s Dilemma
+https://en.wikipedia.org/wiki/Stag_hunt
+
+
+### Prisoner’s Dilemma
 
 https://en.wikipedia.org/wiki/Prisoner%27s_dilemma
 
 
-## Subsidy Game 
+### Subsidy Game 
 
 This game has the following payoff matrix:  
 | **(12, 12)** | **(0, 11)**  |
