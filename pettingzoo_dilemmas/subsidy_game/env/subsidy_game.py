@@ -2,17 +2,17 @@ import functools
 from gymnasium import spaces, logger
 from pettingzoo import ParallelEnv
 
-HEADS = 0
-TAILS = 1
+SUBSIDY_A = 0
+SUBSIDY_B = 1
+NONE      = 2
 
-MOVES = ["HEADS", "TAILS"]
+MOVES = ["SUBSIDY_A", "SUBSIDY_B", "NONE"]
 
 REWARD_MAP = {
-# players reward: (even, odd)
-    (HEADS, HEADS): (1, -1),
-    (HEADS, TAILS): (-1, 1),
-    (TAILS, HEADS): (-1, 1),
-    (TAILS, TAILS): (1, -1),
+    (SUBSIDY_A, SUBSIDY_A): (12, 12),
+    (SUBSIDY_A, SUBSIDY_B): (0,  11),
+    (SUBSIDY_B, SUBSIDY_A): (11, 0),
+    (SUBSIDY_B, SUBSIDY_B): (10, 10),
 }
 
 def env(render_mode: str = None, nrounds: int = 1) -> ParallelEnv:
@@ -22,7 +22,7 @@ def env(render_mode: str = None, nrounds: int = 1) -> ParallelEnv:
 
 class raw_env(ParallelEnv):
     metadata = {
-        "name": "matching_pennies_v0", 
+        "name": "subsidy_game_v0", 
         "render_modes": ["human"],
     }
 
@@ -34,10 +34,10 @@ class raw_env(ParallelEnv):
     action_spaces: dict[str, spaces.Space]
     observations_spaces: dict[str, spaces.Space]
 
-    def __init__(self, render_mode: str = None, nrounds: int = 1):
+    def __init__(self, render_mode: str, nrounds: int):
         self._render_mode = render_mode
         self._nrounds = nrounds
-        self.possible_agents = ["even", "odd"]
+        self.possible_agents = ["player_A", "player_B"]
         self._timestep = None
 
         self._cumulative_rewards = {a: 0 for a in self.possible_agents}
@@ -50,7 +50,7 @@ class raw_env(ParallelEnv):
         self._timestep = 0
         self._cumulative_rewards = {a: 0 for a in self.possible_agents}
 
-        observations = {a: {} for a in self.agents}
+        observations = {a: NONE for a in self.agents}
         infos = {a: {} for a in self.agents}
 
         self.state = observations
@@ -63,32 +63,35 @@ class raw_env(ParallelEnv):
             self.agents = []
             return {}, {}, {}, {}, {}
 
-        even_action = actions["even"]
-        odd_action = actions["odd"]
-
-        rewards = {
-            "even": REWARD_MAP[(even_action, odd_action)][0],
-            "odd": REWARD_MAP[(even_action, odd_action)][1]
-        }
-
         terminations = {a: False for a in self.agents}
         truncations = {a: False for a in self.agents}
+        observations = {a: NONE for a in self.agents}
+        infos = {a: {} for a in self.agents}
+        rewards = {a: 0 for a in self.agents}
 
         if self._timestep >= self._nrounds:
             truncations = {a: True for a in self.agents}
-            rewards = {a: 0 for a in self.agents}
             self.agents = list()
+            return observations, rewards, terminations, truncations, infos 
 
-        self._timestep += 1
+        A_action = actions[self.agents[0]]
+        B_action = actions[self.agents[1]]
+
+        rewards = {
+            self.agents[0]: REWARD_MAP[(A_action, B_action)][0],
+            self.agents[1]: REWARD_MAP[(A_action, B_action)][1]
+        }
 
         for agent in self.agents:
             self._cumulative_rewards[agent] += rewards[agent]
 
         # the observation is the action chosen by the other player
-        observations = {"even": odd_action, "odd": even_action}
-        self.state = observations
+        observations = {self.agents[0]: B_action, self.agents[1]: A_action}
 
-        infos = {a: {} for a in self.agents}
+        # the "state" is the last move played by each player
+        self.state = {self.agents[0]: A_action, self.agents[1]: B_action}
+
+        self._timestep += 1
 
         return observations, rewards, terminations, truncations, infos 
 
@@ -100,10 +103,6 @@ class raw_env(ParallelEnv):
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent): return spaces.Discrete(1)
 
-    def observe(self, agent): 
-        # the only observation is the last move of the other player
-        return self.state[agent]
-
     def render(self):
         if self._render_mode is None:
             logger.warn("You are calling render method without specifying any render mode.")
@@ -111,10 +110,12 @@ class raw_env(ParallelEnv):
         
         if not self.agents: print("Game Over"); return
 
-        even_move = MOVES[self.state[self.agents[0]]]
-        odd_move = MOVES[self.state[self.agents[1]]]
+        A_move = MOVES[self.state[self.agents[0]]]
+        B_move = MOVES[self.state[self.agents[1]]]
 
-        print(f"Current state: Even played: {even_move}, Odd played: {odd_move}")
+        print(f"Current state: Player_A played: {A_move}, Player_B played: {B_move}")
 
     def close(self): return
+
+
 

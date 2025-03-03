@@ -2,16 +2,17 @@ import functools
 from gymnasium import spaces, logger
 from pettingzoo import ParallelEnv
 
-COOPERATE = 0
-DEFECT    = 1
+STAG = 0
+HARE = 1
+NONE = 2
 
-MOVES = ["COOPERATE", "DEFECT"]
+MOVES = ["STAG", "HARE", "NONE"]
 
 REWARD_MAP = {
-    (COOPERATE, COOPERATE): (3, 3),
-    (COOPERATE, DEFECT   ): (0, 5),
-    (DEFECT,    COOPERATE): (5, 0),
-    (DEFECT,    DEFECT   ): (1, 1),
+    (STAG, STAG): (1, 1),
+    (STAG, HARE): (0, 2/3),
+    (HARE, STAG): (2/3, 0),
+    (HARE, HARE): (2/3, 2/3),
 }
 
 def env(render_mode: str = None, nrounds: int = 1) -> ParallelEnv:
@@ -21,7 +22,7 @@ def env(render_mode: str = None, nrounds: int = 1) -> ParallelEnv:
 
 class raw_env(ParallelEnv):
     metadata = {
-        "name": "prisoners_dilemma_v0", 
+        "name": "stag_hunt_v0", 
         "render_modes": ["human"],
     }
 
@@ -36,7 +37,7 @@ class raw_env(ParallelEnv):
     def __init__(self, render_mode: str, nrounds: int):
         self._render_mode = render_mode
         self._nrounds = nrounds
-        self.possible_agents = ["prisoner_A", "prisoner_B"]
+        self.possible_agents = ["hunter_A", "hunter_B"]
         self._timestep = None
 
         self._cumulative_rewards = {a: 0 for a in self.possible_agents}
@@ -49,7 +50,7 @@ class raw_env(ParallelEnv):
         self._timestep = 0
         self._cumulative_rewards = {a: 0 for a in self.possible_agents}
 
-        observations = {a: {} for a in self.agents}
+        observations = {a: NONE for a in self.agents}
         infos = {a: {} for a in self.agents}
 
         self.state = observations
@@ -64,7 +65,7 @@ class raw_env(ParallelEnv):
 
         terminations = {a: False for a in self.agents}
         truncations = {a: False for a in self.agents}
-        observations = {a: {} for a in self.agents}
+        observations = {a: NONE for a in self.agents}
         infos = {a: {} for a in self.agents}
         rewards = {a: 0 for a in self.agents}
 
@@ -73,20 +74,22 @@ class raw_env(ParallelEnv):
             self.agents = list()
             return observations, rewards, terminations, truncations, infos 
 
-        pA_action = actions["prisoner_A"]
-        pB_action = actions["prisoner_B"]
+        hA_action = actions["hunter_A"]
+        hB_action = actions["hunter_B"]
 
         rewards = {
-            self.agents[0]: REWARD_MAP[(pA_action, pB_action)][0],
-            self.agents[1]: REWARD_MAP[(pA_action, pB_action)][1]
+            self.agents[0]: REWARD_MAP[(hA_action, hB_action)][0],
+            self.agents[1]: REWARD_MAP[(hA_action, hB_action)][1]
         }
 
         for agent in self.agents:
             self._cumulative_rewards[agent] += rewards[agent]
 
         # the observation is the action chosen by the other player
-        observations = {self.agents[0]: pB_action, self.agents[1]: pA_action}
-        self.state = observations
+        observations = {self.agents[0]: hB_action, self.agents[1]: hA_action}
+
+        # the "state" is the last move played by each player
+        self.state = {self.agents[0]: hA_action, self.agents[1]: hB_action}
 
         self._timestep += 1
 
@@ -100,10 +103,6 @@ class raw_env(ParallelEnv):
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent): return spaces.Discrete(1)
 
-    def observe(self, agent): 
-        # the only observation is the last move of the other player
-        return self.state[agent]
-
     def render(self):
         if self._render_mode is None:
             logger.warn("You are calling render method without specifying any render mode.")
@@ -111,10 +110,10 @@ class raw_env(ParallelEnv):
         
         if not self.agents: print("Game Over"); return
 
-        pA_move = MOVES[self.state[self.agents[0]]]
-        pB_move = MOVES[self.state[self.agents[1]]]
+        hA_move = MOVES[self.state[self.agents[0]]]
+        hB_move = MOVES[self.state[self.agents[1]]]
 
-        print(f"Current state: Prisoner A played: {pA_move}, Prisoner B played: {pB_move}")
+        print(f"Current state: Hunter A played: {hA_move}, Hunter B played: {hB_move}")
 
     def close(self): return
 

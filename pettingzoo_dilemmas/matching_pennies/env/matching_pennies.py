@@ -2,16 +2,17 @@ import functools
 from gymnasium import spaces, logger
 from pettingzoo import ParallelEnv
 
-SUBSIDY_A = 0
-SUBSIDY_B = 1
+HEADS = 0
+TAILS = 1
+NONE  = 2
 
-MOVES = ["SUBSIDY_A", "SUBSIDY_B"]
+MOVES = ["HEADS", "TAILS", "NONE"]
 
 REWARD_MAP = {
-    (SUBSIDY_A, SUBSIDY_A): (12, 12),
-    (SUBSIDY_A, SUBSIDY_B): (0, 11),
-    (SUBSIDY_B, SUBSIDY_A): (11, 0),
-    (SUBSIDY_B, SUBSIDY_B): (10, 10),
+    (HEADS, HEADS): (1, 0),
+    (HEADS, TAILS): (0, 1),
+    (TAILS, HEADS): (0, 1),
+    (TAILS, TAILS): (1, 0),
 }
 
 def env(render_mode: str = None, nrounds: int = 1) -> ParallelEnv:
@@ -21,7 +22,7 @@ def env(render_mode: str = None, nrounds: int = 1) -> ParallelEnv:
 
 class raw_env(ParallelEnv):
     metadata = {
-        "name": "subsidy_game_v0", 
+        "name": "matching_pennies_v0", 
         "render_modes": ["human"],
     }
 
@@ -36,7 +37,7 @@ class raw_env(ParallelEnv):
     def __init__(self, render_mode: str, nrounds: int):
         self._render_mode = render_mode
         self._nrounds = nrounds
-        self.possible_agents = ["agent_A", "agent_B"]
+        self.possible_agents = ["even", "odd"]
         self._timestep = None
 
         self._cumulative_rewards = {a: 0 for a in self.possible_agents}
@@ -49,7 +50,7 @@ class raw_env(ParallelEnv):
         self._timestep = 0
         self._cumulative_rewards = {a: 0 for a in self.possible_agents}
 
-        observations = {a: {} for a in self.agents}
+        observations = {a: NONE for a in self.agents}
         infos = {a: {} for a in self.agents}
 
         self.state = observations
@@ -64,7 +65,7 @@ class raw_env(ParallelEnv):
 
         terminations = {a: False for a in self.agents}
         truncations = {a: False for a in self.agents}
-        observations = {a: {} for a in self.agents}
+        observations = {a: NONE for a in self.agents}
         infos = {a: {} for a in self.agents}
         rewards = {a: 0 for a in self.agents}
 
@@ -86,7 +87,9 @@ class raw_env(ParallelEnv):
 
         # the observation is the action chosen by the other player
         observations = {self.agents[0]: B_action, self.agents[1]: A_action}
-        self.state = observations
+
+        # the "state" is the last move played by each player
+        self.state = {self.agents[0]: A_action, self.agents[1]: B_action}
 
         self._timestep += 1
 
@@ -100,10 +103,6 @@ class raw_env(ParallelEnv):
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent): return spaces.Discrete(1)
 
-    def observe(self, agent): 
-        # the only observation is the last move of the other player
-        return self.state[agent]
-
     def render(self):
         if self._render_mode is None:
             logger.warn("You are calling render method without specifying any render mode.")
@@ -111,11 +110,12 @@ class raw_env(ParallelEnv):
         
         if not self.agents: print("Game Over"); return
 
-        agent_A_move = MOVES[self.state[self.agents[0]]]
-        agent_B_move = MOVES[self.state[self.agents[1]]]
+        A_move = MOVES[self.state[self.agents[0]]]
+        B_move = MOVES[self.state[self.agents[1]]]
 
-        print(f"Current state: Agent A played: {agent_A_move}, Agent B played: {agent_B_move}")
+        print(f"Current state: Even played: {A_move}, Odd played: {B_move}")
 
     def close(self): return
+
 
 
