@@ -4,7 +4,6 @@ from pettingzoo import ParallelEnv
 import enum
 
 class MatrixGame:
-
     def __init__(self, agents: list[str], moves: list[enum.Enum], reward_matrix: dict):
         self.AGENTS = agents
         self.MOVES = moves
@@ -35,8 +34,8 @@ class MatrixGame:
         action_spaces: dict[str, spaces.Space]
         observations_spaces: dict[str, spaces.Space]
 
-        def __init__(self, render_mode: str, nrounds: int, possible_agents: list[str], moves: list[str],
-                     reward_map: dict):
+        def __init__(self, render_mode: str, nrounds: int, possible_agents: list[str], moves: list[enum.Enum],
+                     reward_map: dict[tuple[enum.Enum, enum.Enum], float]):
 
             self._render_mode = render_mode
             self._nrounds = nrounds
@@ -55,7 +54,10 @@ class MatrixGame:
             self._timestep = 0
             self._cumulative_rewards = {a: 0 for a in self.possible_agents}
 
+            # last move must always be NONE
+            assert self.MOVES[-1].name == 'NONE'
             observations = {a: self.MOVES[-1] for a in self.agents}
+
             infos = {a: {} for a in self.agents}
 
             self.state = observations
@@ -97,7 +99,7 @@ class MatrixGame:
             # the observation is the action chosen by the other player
             observations = {self.agents[0]: B_action, self.agents[1]: A_action}
 
-            # the "state" is the last move played by each player
+            # the state is the last move played by each player
             self.state = {self.agents[0]: A_action, self.agents[1]: B_action}
 
             self._timestep += 1

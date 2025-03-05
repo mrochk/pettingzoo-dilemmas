@@ -1,7 +1,7 @@
 # PettingZoo Dilemmas
 **PettingZoo environment for normal-form games with two agents (i.e matrix games).** 
 
-We provide 4 predefined games (Stag Hunt, Prisoner's Dilemma, Matching Pennies, Subsidy Game), but one can easily create a custom game using the `factory` module (by providing its own reward matrix).
+We provide 4 predefined games (Stag Hunt, Prisoner's Dilemma, Matching Pennies, Subsidy Game), but one can easily create a custom game using the `custom` module (by providing its own reward matrix).
 
 ## Usage
 
@@ -29,7 +29,6 @@ from pettingzoo_dilemmas.stag_hunt import stag_hunt_v0
 
 env : ParallelEnv = stag_hunt_v0.env(render_mode='human', nrounds=3)
 env.reset()
-
 
 print(f'Agents: {env.agents}\n')
 
@@ -61,20 +60,20 @@ class Moves(enum.Enum):
     DEFECT = 1
     NONE = 2
 
-rmatrix = {
+rewardmatrix = {
     (Moves.COOP,   Moves.COOP):   (3, 3),
     (Moves.COOP,   Moves.DEFECT): (0, 5),
     (Moves.DEFECT, Moves.COOP):   (5, 0),
     (Moves.DEFECT, Moves.DEFECT): (1, 1),
 }
 
-fact = factory.MatrixGame(
+game_factory = factory.MatrixGame(
     agents=['A', 'B'], 
     moves=list(Moves), 
-    reward_matrix=rmatrix,
+    reward_matrix=rewardmatrix,
 )
 
-env = fact.env(render_mode='human', nrounds=5)
+env = game_factory.env(render_mode='human', nrounds=5)
 env.reset()
 
 while env.agents:
@@ -82,7 +81,6 @@ while env.agents:
 
     observations, rewards, term, trunc, info = env.step(actions)
 
-    print('OBS:', observations)
     print('REWARDS:', rewards)
 
     env.render(); print()
