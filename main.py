@@ -1,26 +1,36 @@
-from pettingzoo import ParallelEnv
+import enum
 
-from pettingzoo_dilemmas.stag_hunt import stag_hunt_v0
+from pettingzoo_dilemmas import factory
 
-if __name__ == '__main__':
-    env : ParallelEnv = stag_hunt_v0.env(render_mode='human', nrounds=3)
-    env.reset()
+class Moves(enum.Enum):
+    COOP = 0
+    DEFECT = 1
+    NONE = 2
 
+rmatrix = {
+    (Moves.COOP,   Moves.COOP):   (3, 3),
+    (Moves.COOP,   Moves.DEFECT): (0, 5),
+    (Moves.DEFECT, Moves.COOP):   (5, 0),
+    (Moves.DEFECT, Moves.DEFECT): (1, 1),
+}
 
-    print(f'Agents: {env.agents}\n')
+fact = factory.MatrixGame(
+    agents=['A', 'B'], 
+    moves=list(Moves), 
+    reward_matrix=rmatrix,
+)
 
-    t = 1
-    while env.agents:
-        # each agent chooses an action
-        actions = {a: env.action_space(a).sample() for a in env.agents}
+env = fact.env(render_mode='human', nrounds=5)
+env.reset()
 
-        observations, rewards, terminated, truncated, _ = env.step(actions)
+while env.agents:
+    actions = {a: env.action_space(a).sample() for a in env.agents}
 
-        print(f'At timestep {t}:')
-        env.render()
-        print(f'Rewards: {rewards}\n')
+    observations, rewards, term, trunc, info = env.step(actions)
 
-        t += 1
+    print('OBS:', observations)
+    print('REWARDS:', rewards)
 
-    for agent in env.possible_agents:
-        print(f'Cumulative reward  of {agent} = {env.cumreward(agent) : .2f}.')
+    env.render(); print()
+
+print([env.cumreward(a) for a in env.possible_agents])

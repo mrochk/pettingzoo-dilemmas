@@ -1,5 +1,7 @@
 # PettingZoo Dilemmas
-**PettingZoo environments for 4 classical matrix games.** 
+**PettingZoo environment for normal-form games with two agents (i.e matrix games).** 
+
+We provide 4 predefined games (Stag Hunt, Prisoner's Dilemma, Matching Pennies, Subsidy Game), but one can easily create a custom game using the `factory` module (by providing its own reward matrix).
 
 ## Usage
 
@@ -46,6 +48,46 @@ while env.agents:
 
 for agent in env.possible_agents:
     print(f'Cumulative reward  of {agent} = {env.cumreward(agent) : .2f}.')
+```
+
+*Example of creating a custom game:*
+```python
+import enum
+
+from pettingzoo_dilemmas import factory
+
+class Moves(enum.Enum):
+    COOP = 0
+    DEFECT = 1
+    NONE = 2
+
+rmatrix = {
+    (Moves.COOP,   Moves.COOP):   (3, 3),
+    (Moves.COOP,   Moves.DEFECT): (0, 5),
+    (Moves.DEFECT, Moves.COOP):   (5, 0),
+    (Moves.DEFECT, Moves.DEFECT): (1, 1),
+}
+
+fact = factory.MatrixGame(
+    agents=['A', 'B'], 
+    moves=list(Moves), 
+    reward_matrix=rmatrix,
+)
+
+env = fact.env(render_mode='human', nrounds=5)
+env.reset()
+
+while env.agents:
+    actions = {a: env.action_space(a).sample() for a in env.agents}
+
+    observations, rewards, term, trunc, info = env.step(actions)
+
+    print('OBS:', observations)
+    print('REWARDS:', rewards)
+
+    env.render(); print()
+
+print([env.cumreward(a) for a in env.possible_agents])
 ```
 
 ## Games Description:
