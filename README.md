@@ -53,7 +53,7 @@ for agent in env.possible_agents:
 ```python
 import enum
 
-from pettingzoo_dilemmas import factory
+from pettingzoo_dilemmas import custom
 
 class Moves(enum.Enum):
     COOP = 0
@@ -67,7 +67,7 @@ rewardmatrix = {
     (Moves.DEFECT, Moves.DEFECT): (1, 1),
 }
 
-game_factory = factory.MatrixGame(
+game_factory = custom.MatrixGame(
     agents=['A', 'B'], 
     moves=list(Moves), 
     reward_matrix=rewardmatrix,
