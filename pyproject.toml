@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pettingzoo_dilemmas"
+name = "pettingzoo-dilemmas"
 version = "0.0.1"
 authors = [
   { name="Maxime Rochkoulets", email="mrochkoulets@gmail.com" },
 ]
-description = "PettingZoo environments for 4 classical matrix games: Prisoner's Dilemma, Stag Hunt, Matching Pennies and Subsidy Game."
+description = "PettingZoo environment for matrix games."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [

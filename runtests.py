@@ -1,26 +1,11 @@
 import enum
 from pettingzoo.test import parallel_api_test
-
-from pettingzoo_dilemmas import matching_pennies_v0
-from pettingzoo_dilemmas import prisoners_dilemma_v0
-from pettingzoo_dilemmas import stag_hunt_v0
-from pettingzoo_dilemmas import subsidy_game_v0
-from pettingzoo_dilemmas import custom
-
-def test_env(environment):
-    print(environment())
-    for nrounds in [1, 10, 100, 1000]:
-        env = environment(nrounds=nrounds)
-        parallel_api_test(env)
+from pettingzoo_dilemmas import matrix_game_v0
 
 if __name__ == '__main__':
-    for env in [matching_pennies_v0.env, prisoners_dilemma_v0.env, stag_hunt_v0.env, subsidy_game_v0.env]:
-        test_env(env); print()
-
     class Moves(enum.Enum):
         A = 0
         B = 1
-        NONE = 2
 
     rewardmatrix = {
         (Moves.A, Moves.A): (3, 3),
@@ -29,10 +14,13 @@ if __name__ == '__main__':
         (Moves.B, Moves.B): (1, 1),
     }
 
-    game_factory = custom.MatrixGame(
-        agents=['A', 'B'], 
-        moves=list(Moves), 
-        reward_matrix=rewardmatrix,
-    )
+    for nrounds in [1, 1000]:
 
-    test_env(game_factory.env)
+        game = matrix_game_v0.env(
+            agents=['A', 'B'], 
+            Moves=Moves, 
+            reward_matrix=rewardmatrix,
+            nrounds=nrounds,
+        )
+
+        parallel_api_test(game)

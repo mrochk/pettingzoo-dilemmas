@@ -1,7 +1,7 @@
 # PettingZoo Dilemmas
-**PettingZoo environment for normal-form games with two agents (i.e matrix games).** 
+**PettingZoo environment for 2 players normal-form games (matrix games).** 
 
-We provide 4 predefined games (Stag Hunt, Prisoner's Dilemma, Matching Pennies, Subsidy Game), but one can easily create a custom game using the `custom` module (by providing its own reward matrix).
+We provide 4 predefined games (Stag Hunt, Prisoner's Dilemma, Matching Pennies), but one can easily create a custom game using the `custom` module (by simply providing its own reward matrix).
 
 ## Usage
 
