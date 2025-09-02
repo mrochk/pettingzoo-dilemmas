@@ -1,17 +1,18 @@
 import enum
 from pettingzoo_dilemmas import matrix_game_v0
+from pettingzoo_dilemmas import prisoners_dilemma_v0
 
 if __name__ == '__main__':
 
     class Moves(enum.Enum):
-        COOP = 0
-        DEFECT = 1
+        MoveA = 0
+        MoveB = 1
 
     rewardmatrix = {
-        (Moves.COOP,   Moves.COOP):   (3, 3),
-        (Moves.COOP,   Moves.DEFECT): (0, 5),
-        (Moves.DEFECT, Moves.COOP):   (5, 0),
-        (Moves.DEFECT, Moves.DEFECT): (1, 1),
+        (Moves.MoveA,   Moves.MoveA):   (3, 3),
+        (Moves.MoveA,   Moves.MoveB): (0, 5),
+        (Moves.MoveB, Moves.MoveA):   (5, 0),
+        (Moves.MoveB, Moves.MoveB): (1, 1),
     }
 
     agents = ['A', 'B']

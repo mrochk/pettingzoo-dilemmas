@@ -1,1 +1,2 @@
 from .matrix_game import matrix_game_v0
+from .prisoners_dilemma import prisoners_dilemma_v0

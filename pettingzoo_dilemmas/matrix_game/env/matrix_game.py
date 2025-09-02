@@ -123,18 +123,23 @@ class MatrixGame(ParallelEnv):
         move_A = self._state[agent_A]
         move_B = self._state[agent_B]
 
-        move_A = move_A if move_A is None else move_A[0].name
-        move_B = move_B if move_B is None else move_B[0].name
+        move_A = move_A if move_A is None else move_A[0]
+        move_B = move_B if move_B is None else move_B[0]
 
         cr_A = self.cumulative_reward(agent_A)
         cr_B = self.cumulative_reward(agent_B)
 
         game = f'Game {self.metadata["name"]}:\n'
-        game += f'- Last moves: {agent_A} played {move_A}, {agent_B} played {move_B}\n'
+
+        if self._timestep > 0:
+            game += f'- Last moves: {agent_A} played {move_A.name}, {agent_B} played {move_B.name}\n'
+            rewA, rewB = self._reward_matrix[(move_A, move_B)]
+            game += f'- Last rewards: {agent_A} got {rewA}, {agent_B} got {rewB}\n'
 
         if self._nrounds > 0:
-            game += f'- Cumulative rewards: {agent_A}: {cr_A}, {agent_B}: {cr_B}\n'
-            game += f'- Timestep: {self._timestep} / {self._nrounds}\n'
+            game += f'- Cumulative rewards: {agent_A} has {cr_A}, {agent_B} has {cr_B}\n'
+
+        game += f'- Timestep: {self._timestep} / {self._nrounds}\n'
 
         print(game)
 
