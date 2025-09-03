@@ -17,6 +17,6 @@ class PrisonersDilemma(MatrixGame):
             (Moves.Defect,    Moves.Defect):    (1, 1),
         }
 
-        agents = ['prisoner_A', 'prisoner_B']
+        agents = ('prisoner_A', 'prisoner_B')
 
         super().__init__(reward_matrix, Moves, nrounds, agents)

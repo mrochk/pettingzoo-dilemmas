@@ -1,26 +1,23 @@
 import enum
 from pettingzoo_dilemmas import matrix_game_v0
-from pettingzoo_dilemmas import prisoners_dilemma_v0
 
 if __name__ == '__main__':
 
     class Moves(enum.Enum):
-        MoveA = 0
-        MoveB = 1
+        A = 0
+        B = 1
 
     rewardmatrix = {
-        (Moves.MoveA,   Moves.MoveA):   (3, 3),
-        (Moves.MoveA,   Moves.MoveB): (0, 5),
-        (Moves.MoveB, Moves.MoveA):   (5, 0),
-        (Moves.MoveB, Moves.MoveB): (1, 1),
+        (Moves.A, Moves.A): (3, 3),
+        (Moves.A, Moves.B): (0, 5),
+        (Moves.B, Moves.A): (5, 0),
+        (Moves.B, Moves.B): (1, 1),
     }
 
-    agents = ['A', 'B']
-
-    env = matrix_game_v0.MatrixGame(
-        agents=agents, 
+    env = matrix_game_v0.env(
         Moves=Moves, 
         reward_matrix=rewardmatrix,
+        nrounds=2,
     )
 
     env.reset()

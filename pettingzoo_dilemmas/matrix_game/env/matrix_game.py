@@ -34,7 +34,7 @@ class MatrixGame(ParallelEnv):
         self.agents          = []
 
     def reset(self, seed = None, options = None):
-        self.agents = self.possible_agents.copy()
+        self.agents = list(self.possible_agents)
         self._timestep = 0
         self._cumrewards = {agent: 0 for agent in self.possible_agents}
         self._state = {agent: None for agent in self.possible_agents}

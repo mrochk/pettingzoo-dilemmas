@@ -17,6 +17,6 @@ class StagHunt(MatrixGame):
             (Moves.HARE, Moves.HARE): (5,   5),
         }
 
-        agents = ['player_A', 'player_B']
+        agents = ('player_A', 'player_B')
 
         super().__init__(reward_matrix, Moves, nrounds, agents)
